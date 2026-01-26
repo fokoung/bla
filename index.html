@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EDM Adaptive Tutor</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <style>
+        /* Custom animations for the polished feel */
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-in { animation: fadeIn 0.5s ease-out forwards; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900">
+
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        // --- ICONS (Replaced lucide-react with inline SVGs for portability) ---
+        const IconBase = ({ children, className }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+                {children}
+            </svg>
+        );
+
+        const Brain = (props) => <IconBase {...props}><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 1.98-3A2.5 2.5 0 0 1 9.5 2Z"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-1.98-3A2.5 2.5 0 0 0 14.5 2Z"/></IconBase>;
+        const CheckCircle = (props) => <IconBase {...props}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></IconBase>;
+        const XCircle = (props) => <IconBase {...props}><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></IconBase>;
+        const ChevronRight = (props) => <IconBase {...props}><polyline points="9 18 15 12 9 6"/></IconBase>;
+        const GraduationCap = (props) => <IconBase {...props}><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></IconBase>;
+        const ArrowRight = (props) => <IconBase {...props}><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></IconBase>;
+        const HelpCircle = (props) => <IconBase {...props}><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></IconBase>;
+        const Lightbulb = (props) => <IconBase {...props}><line x1="9" y1="18" x2="15" y2="18"/><line x1="10" y1="22" x2="14" y2="22"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 12 2a4.65 4.65 0 0 0-4.5 9.5c.7.76 1.15 1.52 1.34 2.5"/></IconBase>;
+        const Download = (props) => <IconBase {...props}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></IconBase>;
+        const RefreshCw = (props) => <IconBase {...props}><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></IconBase>;
+
+        // --- DATA ---
+        const QUESTIONS = [
+            // --- AFM QUESTIONS ---
+            {
+                id: 'A1',
+                kc: 'AFM',
+                cognitiveLevel: 'Theory',
+                text: "Which core assumption distinguishes the Additive Factor Model (AFM) learning curve from simple percentage-correct metrics?",
+                hints: [
+                    "Think about the shape of a realistic learning curve. Does probability go from 0 to infinity?",
+                    "A linear probability model (y = mx + b) is problematic because probability cannot exceed 100%.",
+                    "AFM uses a transformation common in logistic regression to keep values between 0 and 1.",
+                    "The model assumes the 'log-odds' (logit) is linear, not the raw probability itself."
+                ],
+                options: [
+                    { id: 'A', text: "The probability of a correct response increases linearly with each practice opportunity.", isCorrect: false, feedback: "Incorrect. A linear probability model would eventually predict probabilities > 100%, which is mathematically impossible." },
+                    { id: 'B', text: "The log-odds (logit) of a correct response increase linearly with practice.", isCorrect: true, feedback: "Correct! AFM uses logistic regression. The 'logit' (log-odds) is linear, creating the characteristic S-curve for probability." },
+                    { id: 'C', text: "Learning occurs in a discrete 'all-or-nothing' jump from unlearned to learned.", isCorrect: false, feedback: "Incorrect. That describes Bayesian Knowledge Tracing (BKT), a Hidden Markov Model, not AFM." }
+                ]
+            },
+            {
+                id: 'A2',
+                kc: 'AFM',
+                cognitiveLevel: 'Interpretation',
+                text: "In the AFM equation, the parameter theta (θ) represents the student intercept. What functional role does this parameter play?",
+                hints: [
+                    "The formula has indices 'i' for student and 'k' for skill. Theta has only the 'i' subscript.",
+                    "Consider two students entering the course: one is a novice, one is an expert. How does the model distinguish them?",
+                    "This parameter accounts for where the student starts on the y-axis before any practice occurs.",
+                    "It captures the initial variability in prior knowledge (intercept) for each specific student."
+                ],
+                options: [
+                    { id: 'A', text: "It captures the initial variability in prior knowledge across different students.", isCorrect: true, feedback: "Correct. It shifts the starting point of the learning curve up or down for each specific student." },
+                    { id: 'B', text: "It weights the difficulty of the Knowledge Component (KC).", isCorrect: false, feedback: "Incorrect. KC difficulty is usually represented by beta (β)." },
+                    { id: 'C', text: "It represents the rate at which a specific student learns relative to average.", isCorrect: false, feedback: "Incorrect. In standard AFM, the learning rate (slope) is fixed per skill, not per student." }
+                ]
+            },
+            {
+                id: 'A3',
+                kc: 'AFM',
+                cognitiveLevel: 'Pedagogy',
+                text: "An AFM analysis reveals a Knowledge Component with a high intercept (β) but a near-zero learning rate (γ ≈ 0). What does this suggest?",
+                hints: [
+                    "Visualize the curve: The Intercept is the starting height. The Slope (learning rate) is the growth.",
+                    "If the intercept is high, the students are already getting it right on the first try.",
+                    "If the slope is zero, their performance isn't changing over time.",
+                    "They started with high accuracy and stayed there. The skill is already known/easy, so practice is wasted."
+                ],
+                options: [
+                    { id: 'A', text: "The skill is difficult, and students require significant practice.", isCorrect: false, feedback: "Incorrect. A high intercept implies the skill was easy to begin with." },
+                    { id: 'B', text: "Students are 'gaming the system' by guessing.", isCorrect: false, feedback: "Incorrect. Gaming usually manifests as fast incorrect answers or specific patterns, not necessarily high initial success." },
+                    { id: 'C', text: "The skill is 'easy' or already known; further practice yields diminishing returns.", isCorrect: true, feedback: "Correct. If they start high and don't grow, they've likely already mastered it. Stop practicing this skill." }
+                ]
+            },
+            // --- PFM QUESTIONS ---
+            {
+                id: 'B1',
+                kc: 'PFM',
+                cognitiveLevel: 'Theory',
+                text: "How does the Performance Factor Model (PFM) extend the AFM to provide more granular predictions?",
+                hints: [
+                    "Standard AFM just counts 'Total Opportunities' (T). It ignores what happened during those opportunities.",
+                    "PFM assumes we learn differently from a success vs. a failure.",
+                    "Look for the option that splits the single 'count' variable into two specific outcomes.",
+                    "It separates the practice count into 'Prior Corrects' and 'Prior Incorrects'."
+                ],
+                options: [
+                    { id: 'A', text: "It splits the 'practice count' into prior correct and prior incorrect responses.", isCorrect: true, feedback: "Correct. It decouples the learning rate, acknowledging that we learn differently from success vs. failure." },
+                    { id: 'B', text: "It incorporates time-on-task as a logarithmic factor.", isCorrect: false, feedback: "Incorrect. While time is important, PFM specifically focuses on performance outcomes (success/failure)." },
+                    { id: 'C', text: "It adds a student-specific learning rate.", isCorrect: false, feedback: "Incorrect. That is the AFM-S (Slope) model." }
+                ]
+            },
+            {
+                id: 'B2',
+                kc: 'PFM',
+                cognitiveLevel: 'Interpretation',
+                text: "In a PFM analysis, if the coefficient for prior failures (ρ) is negative, what is the interpretation?",
+                hints: [
+                    "A negative coefficient means 'More of X leads to less probability of success'.",
+                    "Here, X is 'Prior Failures'. So, more past failures = lower chance to get it right now.",
+                    "If you keep failing and your probability of success keeps dropping, you aren't learning. You are stuck.",
+                    "This phenomenon is called 'Wheel-spinning': accumulating failure predicts future failure."
+                ],
+                options: [
+                    { id: 'A', text: "Students learn more from mistakes than from successes.", isCorrect: false, feedback: "Incorrect. That would imply a positive coefficient (failures increase success probability)." },
+                    { id: 'B', text: "Accumulating failures predicts future failure (Wheel-spinning).", isCorrect: true, feedback: "Correct. A negative slope means the more you fail, the *less* likely you are to succeed next time. This indicates a stuck student." },
+                    { id: 'C', text: "The model has failed to converge.", isCorrect: false, feedback: "Incorrect. Negative coefficients are valid (and common) findings in educational data." }
+                ]
+            },
+            {
+                id: 'B3',
+                kc: 'PFM',
+                cognitiveLevel: 'Pedagogy',
+                text: "A teacher sees a strongly negative PFM failure coefficient for a geometry skill. What intervention is best supported?",
+                hints: [
+                    "The data indicates 'wheel-spinning' (the student is stuck).",
+                    "Is 'more of the same' likely to fix a fundamental misconception?",
+                    "If they are reinforcing bad habits, you must stop the practice loop.",
+                    "Provide remedial feedback or break the skill down. Do not just assign more problems."
+                ],
+                options: [
+                    { id: 'A', text: "Increase the number of practice problems.", isCorrect: false, feedback: "Incorrect. More practice will likely just reinforce the misconception or frustration." },
+                    { id: 'B', text: "Provide immediate remedial feedback or break the skill down.", isCorrect: true, feedback: "Correct. The data shows 'wheel-spinning'. The student needs a different instructional strategy, not just more volume." },
+                    { id: 'C', text: "Remove the skill from the curriculum.", isCorrect: false, feedback: "Incorrect. The skill is likely necessary; the *instruction* is what needs changing." }
+                ]
+            },
+            // --- IFM QUESTIONS ---
+            {
+                id: 'C1',
+                kc: 'IFM',
+                cognitiveLevel: 'Theory',
+                text: "The Instructional Factor Model (IFM) was developed to address which specific limitation of AFM and PFM?",
+                hints: [
+                    "Look at the name of the model: 'Instructional Factor'.",
+                    "Standard models treat every attempt the same, whether you did it alone or the system helped you.",
+                    "Does AFM know if you clicked the 'Hint' button?",
+                    "AFM/PFM ignore whether the student received scaffolding (hints) during the attempt."
+                ],
+                options: [
+                    { id: 'A', text: "They treat all practice attempts as equal, ignoring hints/scaffolding.", isCorrect: true, feedback: "Correct. IFM accounts for the 'Instructional Step'—whether help was given." },
+                    { id: 'B', text: "They cannot handle datasets with missing values.", isCorrect: false, feedback: "Incorrect." },
+                    { id: 'C', text: "They do not account for the forgetting curve.", isCorrect: false, feedback: "Incorrect. Forgetting is modeled by AFM+F." }
+                ]
+            },
+            {
+                id: 'C2',
+                kc: 'IFM',
+                cognitiveLevel: 'Interpretation',
+                text: "If an IFM analysis shows a negative coefficient for 'hint requests', how should this be interpreted regarding immediate performance?",
+                hints: [
+                    "This is about statistical correlation, not necessarily the quality of the hint.",
+                    "Who tends to ask for hints: the student who knows the answer, or the one who doesn't?",
+                    "If struggling students are the primary hint-users, what does a hint request signal about their knowledge?",
+                    "Hint usage is a proxy for low prior knowledge, so it correlates negatively with independent success."
+                ],
+                options: [
+                    { id: 'A', text: "Using a hint immediately increases the probability of correctness.", isCorrect: false, feedback: "Incorrect. That would be a positive coefficient." },
+                    { id: 'B', text: "Heavy reliance on hints correlates with lower independent knowledge.", isCorrect: true, feedback: "Correct. Needing a hint is a proxy for lower prior knowledge, so the correlation is often negative." },
+                    { id: 'C', text: "The hints are poorly designed and confusing.", isCorrect: false, feedback: "Incorrect. The model measures student state relative to the hint, not necessarily the quality of the hint text itself." }
+                ]
+            },
+            {
+                id: 'C3',
+                kc: 'IFM',
+                cognitiveLevel: 'Pedagogy',
+                text: "The 'Assistance Dilemma': Hint usage correlates negatively with immediate correctness, yet removing hints lowers overall learning. What is the paradox?",
+                hints: [
+                    "Think about the difference between 'doing it now' and 'knowing it later'.",
+                    "Performance is immediate execution. Learning is long-term retention.",
+                    "Scaffolding (hints) might make immediate performance look lower (or dependent), but it is building the mental model.",
+                    "The paradox is that short-term Performance decreases (or looks negative) during help, but long-term Learning is actually occurring."
+                ],
+                options: [
+                    { id: 'A', text: "Short-term performance decreases during scaffolding, but long-term learning occurs.", isCorrect: true, feedback: "Correct. Scaffolding might slow them down or signal struggle now, but it builds the mental model for later success." },
+                    { id: 'B', text: "The model is mathematically flawed.", isCorrect: false, feedback: "Incorrect." },
+                    { id: 'C', text: "Students who ask for hints are gaming the system.", isCorrect: false, feedback: "Incorrect. While gaming exists, this dilemma applies even to genuine learners." }
+                ]
+            }
+        ];
+
+        // --- HEADER COMPONENT ---
+        const Header = ({ current, total }) => (
+            <header className="bg-white border-b border-slate-200 sticky top-0 z-10 shadow-sm">
+                <div className="max-w-5xl mx-auto px-4 py-4 flex justify-between items-center">
+                    <div className="flex items-center gap-3">
+                        <div className="bg-indigo-600 p-2 rounded-lg">
+                            <GraduationCap className="w-6 h-6 text-white" />
+                        </div>
+                        <div>
+                            <h1 className="text-xl font-bold text-slate-900 leading-tight">EDM Adaptive Tutor</h1>
+                            <p className="text-xs text-slate-500 font-medium">Knowledge Tracing Diagnostic</p>
+                        </div>
+                    </div>
+                    <div className="flex items-center gap-4">
+                        <div className="hidden sm:block text-right">
+                            <p className="text-xs text-slate-400 uppercase tracking-wider font-semibold">Progress</p>
+                            <p className="text-lg font-bold text-indigo-600 font-mono">{current} <span className="text-slate-300">/</span> {total}</p>
+                        </div>
+                        <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center border-2 border-indigo-100 relative">
+                            <span className="absolute inset-0 rounded-full border-2 border-indigo-600" style={{ clipPath: `circle(${current/total * 50 + 50}% at 50% 50%)` }}></span>
+                            <span className="text-xs font-bold text-slate-600">{(current/total * 100).toFixed(0)}%</span>
+                        </div>
+                    </div>
+                </div>
+            </header>
+        );
+
+        // --- MAIN APP COMPONENT ---
+        function App() {
+            const [hasStarted, setHasStarted] = useState(false);
+            const [currentQIndex, setCurrentQIndex] = useState(0);
+            const [selectedOption, setSelectedOption] = useState(null);
+            const [isSubmitted, setIsSubmitted] = useState(false);
+            
+            // Scaffolding State
+            const [hintLevel, setHintLevel] = useState(0); 
+
+            // Tracking State
+            const [sessionStartTime, setSessionStartTime] = useState(0);
+            const [questionStartTime, setQuestionStartTime] = useState(0);
+            const [interactions, setInteractions] = useState([]);
+            
+            const [hasMasteredAll, setHasMasteredAll] = useState(false);
+
+            const currentQ = QUESTIONS[currentQIndex];
+
+            // Start the session
+            const handleStart = () => {
+                const now = Date.now();
+                setHasStarted(true);
+                setSessionStartTime(now);
+                setQuestionStartTime(now);
+            };
+
+            const handleOptionSelect = (id) => {
+                if (isSubmitted) return;
+                setSelectedOption(id);
+            };
+
+            const handleHintRequest = () => {
+                if (hintLevel < 4) {
+                    setHintLevel(prev => prev + 1);
+                }
+            }
+
+            const handleSubmit = () => {
+                if (!selectedOption) return;
+                
+                // Calculate time spent on this specific question
+                const endTime = Date.now();
+                const durationSeconds = (endTime - questionStartTime) / 1000;
+
+                setIsSubmitted(true);
+                
+                const option = currentQ.options.find(o => o.id === selectedOption);
+                const isCorrect = option?.isCorrect || false;
+
+                // Record the interaction data
+                const record = {
+                    questionId: currentQ.id,
+                    knowledgeComponent: currentQ.kc,
+                    cognitiveLevel: currentQ.cognitiveLevel,
+                    selectedOption: selectedOption,
+                    isCorrect: isCorrect,
+                    timeSpentSeconds: parseFloat(durationSeconds.toFixed(2)),
+                    hintsUsed: hintLevel,
+                    timestamp: new Date().toISOString()
+                };
+                
+                setInteractions(prev => [...prev, record]);
+            };
+
+            const handleNext = () => {
+                if (currentQIndex < QUESTIONS.length - 1) {
+                    setCurrentQIndex(prev => prev + 1);
+                    setSelectedOption(null);
+                    setIsSubmitted(false);
+                    setHintLevel(0);
+                    setQuestionStartTime(Date.now()); // Reset timer for next question
+                } else {
+                    setHasMasteredAll(true);
+                }
+            };
+
+            const handleReset = () => {
+                setHasStarted(false);
+                setCurrentQIndex(0);
+                setSelectedOption(null);
+                setIsSubmitted(false);
+                setHintLevel(0);
+                setHasMasteredAll(false);
+                setInteractions([]);
+                setSessionStartTime(0);
+                setQuestionStartTime(0);
+            };
+
+            // Generate and download the JSON file
+            const handleDownloadData = () => {
+                const totalCorrect = interactions.filter(i => i.isCorrect).length;
+                const totalTime = (Date.now() - sessionStartTime) / 1000;
+
+                const exportData = {
+                    sessionId: `session_${new Date().getTime()}`,
+                    completedAt: new Date().toISOString(),
+                    totalTimeSeconds: parseFloat(totalTime.toFixed(2)),
+                    score: {
+                        correct: totalCorrect,
+                        total: QUESTIONS.length,
+                        percentage: parseFloat(((totalCorrect / QUESTIONS.length) * 100).toFixed(1))
+                    },
+                    interactions: interactions
+                };
+
+                const jsonString = JSON.stringify(exportData, null, 2);
+                const blob = new Blob([jsonString], { type: "application/json" });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement("a");
+                link.href = url;
+                link.download = `edm_assessment_data_${new Date().toISOString().split('T')[0]}.json`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            };
+
+            if (!hasStarted) {
+                return (
+                    <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-slate-800 to-slate-900 flex items-center justify-center p-6">
+                        <div className="max-w-xl w-full bg-white rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in duration-500">
+                            <div className="h-2 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"></div>
+                            <div className="p-10 text-center">
+                                <div className="w-20 h-20 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                                    <Brain className="w-10 h-10 text-indigo-600" />
+                                </div>
+                                <h1 className="text-3xl font-bold text-slate-900 mb-3">EDM Assessment System</h1>
+                                <p className="text-slate-500 mb-8 leading-relaxed">
+                                    Welcome to the Intelligent Tutoring System prototype. 
+                                    This diagnostic assesses your understanding of AFM, PFM, and IFM theories
+                                    using a 3x3 matrix design with intelligent scaffolding.
+                                </p>
+                                <button 
+                                    onClick={handleStart}
+                                    className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 px-6 rounded-xl shadow-lg shadow-indigo-200 transition-all transform hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2"
+                                >
+                                    Start Diagnostic <ArrowRight className="w-5 h-5" />
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )
+            }
+
+            if (hasMasteredAll) {
+                const totalCorrect = interactions.filter(i => i.isCorrect).length;
+                const percentage = (totalCorrect / QUESTIONS.length) * 100;
+                
+                return (
+                <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6 font-sans">
+                    <div className="bg-white p-10 rounded-3xl shadow-xl max-w-2xl w-full text-center border border-slate-200">
+                    <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6 animate-in zoom-in duration-500">
+                        <CheckCircle className="w-12 h-12 text-green-600" />
+                    </div>
+                    <h1 className="text-4xl font-bold text-slate-800 mb-2">Diagnostic Complete</h1>
+                    <p className="text-slate-600 mb-10 text-lg">You have completed all questions in the matrix.</p>
+                    
+                    <div className="mb-8 p-6 bg-slate-50 rounded-2xl border border-slate-200">
+                        <div className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-2">Final Score</div>
+                        <div className="text-5xl font-bold text-indigo-600 mb-2">{totalCorrect} / {QUESTIONS.length}</div>
+                        <div className="text-slate-400 font-medium">{percentage.toFixed(0)}% Accuracy</div>
+                    </div>
+
+                    <div className="flex flex-col gap-3 max-w-xs mx-auto">
+                        <button 
+                            onClick={handleDownloadData}
+                            className="flex items-center justify-center gap-2 w-full px-6 py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-colors font-semibold shadow-md"
+                        >
+                            <Download className="w-5 h-5" />
+                            Download Session Data (.json)
+                        </button>
+                        
+                        <button 
+                            onClick={handleReset}
+                            className="flex items-center justify-center gap-2 w-full px-6 py-3 bg-white text-slate-700 border border-slate-300 rounded-xl hover:bg-slate-50 transition-colors font-semibold"
+                        >
+                            <RefreshCw className="w-4 h-4" />
+                            Start New Session
+                        </button>
+                    </div>
+                    </div>
+                </div>
+                );
+            }
+
+            return (
+                <div className="min-h-screen bg-slate-50 font-sans flex flex-col">
+                <Header current={currentQIndex + 1} total={QUESTIONS.length} />
+
+                <main className="flex-1 w-full max-w-5xl mx-auto p-4 md:p-6 flex flex-col items-center">
+                    
+                    <div className="w-full bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col min-h-[500px]">
+                        {/* Question Header */}
+                        <div className="bg-slate-50 px-8 py-6 border-b border-slate-100 flex justify-between items-start">
+                        <div>
+                            <div className="flex gap-2 mb-3">
+                                <span className="px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-xs font-bold uppercase tracking-wide border border-indigo-200">
+                                    Domain: {currentQ.kc}
+                                </span>
+                                <span className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-bold uppercase tracking-wide border border-purple-200">
+                                    {currentQ.cognitiveLevel}
+                                </span>
+                            </div>
+                            <h2 className="text-xl md:text-2xl text-slate-900 font-semibold leading-relaxed">
+                                {currentQ.text}
+                            </h2>
+                        </div>
+                        </div>
+
+                        <div className="p-8 flex-1 flex flex-col">
+                        {/* Options */}
+                        <div className="space-y-4 mb-8">
+                            {currentQ.options.map((option) => (
+                            <button
+                                key={option.id}
+                                onClick={() => handleOptionSelect(option.id)}
+                                disabled={isSubmitted}
+                                className={`w-full text-left p-4 md:p-5 rounded-xl border-2 transition-all duration-200 flex items-start gap-4 group relative overflow-hidden ${
+                                isSubmitted 
+                                    ? option.isCorrect 
+                                    ? 'border-green-500 bg-green-50/50' 
+                                    : selectedOption === option.id 
+                                        ? 'border-red-500 bg-red-50/50'
+                                        : 'border-slate-100 opacity-60 grayscale'
+                                    : selectedOption === option.id
+                                    ? 'border-indigo-600 bg-indigo-50 shadow-md ring-2 ring-indigo-200 ring-opacity-50'
+                                    : 'border-slate-200 hover:border-indigo-300 hover:bg-slate-50 hover:shadow-sm'
+                                }`}
+                            >
+                                <div className={`mt-0.5 w-8 h-8 rounded-lg flex items-center justify-center border text-sm font-bold shrink-0 transition-colors ${
+                                isSubmitted 
+                                ? option.isCorrect 
+                                    ? 'bg-green-500 border-green-500 text-white' 
+                                    : selectedOption === option.id 
+                                    ? 'bg-red-500 border-red-500 text-white'
+                                    : 'border-slate-300 text-slate-400 bg-slate-50'
+                                : selectedOption === option.id
+                                    ? 'bg-indigo-600 border-indigo-600 text-white'
+                                    : 'border-slate-300 text-slate-500 bg-white group-hover:border-indigo-400 group-hover:text-indigo-600'
+                                }`}>
+                                {option.id}
+                                </div>
+                                <span className={`text-base md:text-lg leading-relaxed ${
+                                    isSubmitted && option.isCorrect ? 'font-semibold text-green-900' : 
+                                    isSubmitted && selectedOption === option.id ? 'font-medium text-red-900' :
+                                    'text-slate-700'
+                                }`}>
+                                {option.text}
+                                </span>
+                                
+                                {/* Visual Marker for Outcome */}
+                                {isSubmitted && option.isCorrect && (
+                                    <CheckCircle className="absolute right-4 top-1/2 -translate-y-1/2 text-green-500/20 w-12 h-12" />
+                                )}
+                            </button>
+                            ))}
+                        </div>
+
+                        {/* Scaffolding / Hints Area */}
+                        {!isSubmitted && (
+                            <div className="mt-auto">
+                                {/* HINT DISPLAY */}
+                                {hintLevel > 0 && (
+                                    <div className="space-y-2 mb-4 animate-in">
+                                    {currentQ.hints.slice(0, hintLevel).map((h, idx) => (
+                                        <div key={idx} className={`p-4 rounded-xl border flex gap-4 shadow-sm ${
+                                        idx === hintLevel - 1 
+                                            ? 'bg-amber-50 border-amber-200 text-amber-900' 
+                                            : 'bg-slate-50 border-slate-100 text-slate-500 opacity-80'
+                                        }`}>
+                                        <div className={`p-2 rounded-full h-fit shrink-0 ${
+                                            idx === hintLevel - 1 ? 'bg-amber-100' : 'bg-slate-200'
+                                        }`}>
+                                            <Lightbulb className={`w-5 h-5 ${
+                                                idx === hintLevel - 1 ? 'text-amber-700' : 'text-slate-500'
+                                            }`} />
+                                        </div>
+                                        <div>
+                                            <p className={`font-bold text-xs uppercase mb-1 ${
+                                                idx === hintLevel - 1 ? 'text-amber-800' : 'text-slate-400'
+                                            }`}>Scaffolding Level {idx + 1}</p>
+                                            <p className="text-sm leading-relaxed">{h}</p>
+                                        </div>
+                                        </div>
+                                    ))}
+                                    </div>
+                                )}
+                                
+                                {/* HINT BUTTON */}
+                                {hintLevel < 4 && (
+                                    <button 
+                                        onClick={handleHintRequest}
+                                        className="text-sm font-medium text-indigo-600 hover:text-indigo-800 flex items-center gap-2 transition-colors px-4 py-2 rounded-lg hover:bg-indigo-50 self-start group"
+                                    >
+                                        <HelpCircle className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                                        <span>
+                                        {hintLevel === 0 ? "Stuck? Request an Intelligent Hint" : `Need more help? (Show Hint ${hintLevel + 1}/4)`}
+                                        </span>
+                                        
+                                        {/* Visual Progress Dots for Hints */}
+                                        <div className="flex gap-1 ml-2">
+                                            {[1, 2, 3, 4].map(i => (
+                                                <div key={i} className={`w-1.5 h-1.5 rounded-full ${i <= hintLevel ? 'bg-indigo-400' : 'bg-indigo-100'}`} />
+                                            ))}
+                                        </div>
+                                    </button>
+                                )}
+                            </div>
+                        )}
+
+                        {/* Feedback Area */}
+                        {isSubmitted && (
+                            <div className={`mt-auto p-6 rounded-xl border flex items-start gap-4 animate-in shadow-sm ${
+                            currentQ.options.find(o => o.id === selectedOption)?.isCorrect 
+                                ? 'bg-emerald-50 border-emerald-200 text-emerald-900' 
+                                : 'bg-rose-50 border-rose-200 text-rose-900'
+                            }`}>
+                            {currentQ.options.find(o => o.id === selectedOption)?.isCorrect 
+                                ? <CheckCircle className="w-8 h-8 shrink-0 text-emerald-600" /> 
+                                : <XCircle className="w-8 h-8 shrink-0 text-rose-600" />
+                            }
+                            <div className="flex-1">
+                                <h3 className="font-bold text-lg mb-1">
+                                {currentQ.options.find(o => o.id === selectedOption)?.isCorrect ? 'Correct!' : 'Incorrect'}
+                                </h3>
+                                <div className="prose prose-sm max-w-none">
+                                    <p className="opacity-90 leading-relaxed text-base">
+                                        {currentQ.options.find(o => o.id === selectedOption)?.feedback}
+                                    </p>
+                                </div>
+                            </div>
+                            </div>
+                        )}
+                        </div>
+
+                        {/* Footer / Controls */}
+                        <div className="bg-slate-50 p-6 border-t border-slate-100 flex justify-end">
+                        {!isSubmitted ? (
+                            <button 
+                            onClick={handleSubmit}
+                            disabled={!selectedOption}
+                            className="bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed text-white px-10 py-3 rounded-xl font-bold shadow-lg shadow-indigo-200 transition-all transform active:scale-95 flex items-center gap-2"
+                            >
+                            Submit Answer
+                            </button>
+                        ) : (
+                            <button 
+                            onClick={handleNext}
+                            className="bg-slate-900 hover:bg-slate-800 text-white px-10 py-3 rounded-xl font-bold shadow-lg transition-all flex items-center gap-2 transform active:scale-95"
+                            >
+                            {currentQIndex < QUESTIONS.length - 1 ? 'Next Question' : 'Finish Diagnostic'} <ChevronRight className="w-4 h-4" />
+                            </button>
+                        )}
+                        </div>
+                    </div>
+
+                </main>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
