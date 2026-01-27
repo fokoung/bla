@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EDM Adaptive Tutor: StuMMBE-Q & Usability</title>
+    <title>EDM Adaptive Tutor: StuMMBE-Q & Full UMUX</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     
@@ -46,41 +46,31 @@
 
 
         // --- PRE-TEST: STUMMBE-Q DATA (Krell, 2017) ---
+        // Context: Evaluation of LEARNING MATERIAL / SIMULATION
         const STUMMBEQ_ITEMS = [
             // Mental Effort (ME)
-            { id: 'ME1', text: "I expect to put little effort into answering the tasks.", type: 'ME', reverse: true },
-            { id: 'ME2', text: "I don't intend to try hard to answer the tasks correctly.", type: 'ME', reverse: true },
-            { id: 'ME3', text: "I will try hard to answer the tasks correctly.", type: 'ME', reverse: false },
-            { id: 'ME4', text: "I will make an intellectual effort when answering the tasks.", type: 'ME', reverse: false },
-            { id: 'ME5', text: "I don't intend to be particularly focused when answering the tasks.", type: 'ME', reverse: true },
-            { id: 'ME6', text: "I will give my best to solve the tasks.", type: 'ME', reverse: false },
+            { id: 'ME1', text: "I put little effort into understanding the learning material.", type: 'ME', reverse: true },
+            { id: 'ME2', text: "I did not try hard to understand the concepts in the simulation.", type: 'ME', reverse: true },
+            { id: 'ME3', text: "I tried hard to understand the learning material correctly.", type: 'ME', reverse: false },
+            { id: 'ME4', text: "I made an intellectual effort when working with the simulation.", type: 'ME', reverse: false },
+            { id: 'ME5', text: "I was not particularly focused when using the learning material.", type: 'ME', reverse: true },
+            { id: 'ME6', text: "I gave my best to understand the content of the simulation.", type: 'ME', reverse: false },
             
             // Mental Load (ML)
-            { id: 'ML1', text: "I expect the contents of the tasks to be complicated.", type: 'ML', reverse: false },
-            { id: 'ML2', text: "I expect the tasks to be challenging.", type: 'ML', reverse: false },
-            { id: 'ML3', text: "I expect the tasks to be easy to work on.", type: 'ML', reverse: true },
-            { id: 'ML4', text: "I expect the contents of the tasks to be easy to understand.", type: 'ML', reverse: true },
-            { id: 'ML5', text: "I expect the tasks to be easy to solve.", type: 'ML', reverse: true },
-            { id: 'ML6', text: "I expect the task structure to be complex.", type: 'ML', reverse: false }
+            { id: 'ML1', text: "The contents of the learning material were complicated.", type: 'ML', reverse: false },
+            { id: 'ML2', text: "The simulation tasks were challenging.", type: 'ML', reverse: false },
+            { id: 'ML3', text: "The learning material was easy to work with.", type: 'ML', reverse: true },
+            { id: 'ML4', text: "The contents of the simulation were easy to understand.", type: 'ML', reverse: true },
+            { id: 'ML5', text: "The simulation was easy to solve/use.", type: 'ML', reverse: true },
+            { id: 'ML6', text: "The structure of the learning material was complex.", type: 'ML', reverse: false }
         ];
 
-        // --- POST-TEST: USABILITY DATA (SUS & UMUX-Lite) ---
-        const SUS_ITEMS = [
-            { id: 'SUS1', text: "I think that I would like to use this system frequently." },
-            { id: 'SUS2', text: "I found the system unnecessarily complex." },
-            { id: 'SUS3', text: "I thought the system was easy to use." },
-            { id: 'SUS4', text: "I think that I would need the support of a technical person to be able to use this system." },
-            { id: 'SUS5', text: "I found the various functions in this system were well integrated." },
-            { id: 'SUS6', text: "I thought there was too much inconsistency in this system." },
-            { id: 'SUS7', text: "I would imagine that most people would learn to use this system very quickly." },
-            { id: 'SUS8', text: "I found the system very cumbersome to use." },
-            { id: 'SUS9', text: "I felt very confident using the system." },
-            { id: 'SUS10', text: "I needed to learn a lot of things before I could get going with this system." }
-        ];
-
-        const UMUX_LITE_ITEMS = [
-            { id: 'UMUX1', text: "This system's capabilities meet my requirements." },
-            { id: 'UMUX2', text: "This system is easy to use." }
+        // --- POST-TEST: STANDARD UMUX (Finstad, 2010) ---
+        const UMUX_ITEMS = [
+            { id: 'UMUX1', text: "This system's capabilities meet my requirements.", reverse: false },
+            { id: 'UMUX2', text: "Using this system is a frustrating experience.", reverse: true },
+            { id: 'UMUX3', text: "This system is easy to use.", reverse: false },
+            { id: 'UMUX4', text: "I have to spend too much time correcting things with this system.", reverse: true }
         ];
 
         // --- QUIZ DATA ---
@@ -244,10 +234,10 @@
                     <div className="bg-slate-50 px-8 py-6 border-b border-slate-100">
                         <div className="flex items-center gap-3 mb-2">
                             <span className="bg-blue-100 text-blue-700 p-2 rounded-lg"><FileText size={20}/></span>
-                            <h2 className="text-xl font-bold text-slate-900">Pre-Assessment Survey (StuMMBE-Q)</h2>
+                            <h2 className="text-xl font-bold text-slate-900">Evaluation of Learning Material (StuMMBE-Q)</h2>
                         </div>
                         <p className="text-slate-600 text-sm">
-                            Please answer the following questions regarding your <strong>expectations</strong> for the upcoming tasks. 
+                            Please answer the following questions regarding the <strong>learning material/simulation you just used</strong>. 
                             (1 = Strongly Disagree, 7 = Strongly Agree)
                         </p>
                     </div>
@@ -285,14 +275,14 @@
                             disabled={!isComplete}
                             className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white px-8 py-3 rounded-xl font-bold shadow-lg transition-all flex items-center gap-2"
                         >
-                            Submit & Start Quiz <ChevronRight className="w-4 h-4" />
+                            Submit & Start Diagnostic Quiz <ChevronRight className="w-4 h-4" />
                         </button>
                     </div>
                 </div>
             );
         };
 
-        // --- COMPONENT: USABILITY SURVEY (SUS & UMUX-Lite) ---
+        // --- COMPONENT: USABILITY SURVEY (FULL UMUX) ---
         const UsabilitySurvey = ({ onComplete }) => {
             const [responses, setResponses] = useState({});
             
@@ -300,16 +290,14 @@
                 setResponses(prev => ({ ...prev, [itemId]: rating }));
             };
 
-            const allSusAnswered = SUS_ITEMS.every(i => responses[i.id] !== undefined);
-            const allUmuxAnswered = UMUX_LITE_ITEMS.every(i => responses[i.id] !== undefined);
-            const isComplete = allSusAnswered && allUmuxAnswered;
+            const isComplete = UMUX_ITEMS.every(i => responses[i.id] !== undefined);
 
             return (
                 <div className="w-full max-w-4xl mx-auto bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col animate-in">
                     <div className="bg-slate-50 px-8 py-6 border-b border-slate-100">
                         <div className="flex items-center gap-3 mb-2">
                             <span className="bg-emerald-100 text-emerald-700 p-2 rounded-lg"><Sliders size={20}/></span>
-                            <h2 className="text-xl font-bold text-slate-900">Post-Assessment: Usability</h2>
+                            <h2 className="text-xl font-bold text-slate-900">Post-Assessment: System Usability (UMUX)</h2>
                         </div>
                         <p className="text-slate-600 text-sm">
                             Now that you have finished the tasks, please rate your experience using the system itself.
@@ -318,42 +306,11 @@
                     
                     <div className="p-8 bg-white space-y-10 max-h-[60vh] overflow-y-auto">
                         
-                        {/* SUS Section */}
+                        {/* FULL UMUX Section */}
                         <div>
-                            <h3 className="text-lg font-bold text-slate-800 mb-4 pb-2 border-b">1. System Usability Scale (SUS)</h3>
-                            <p className="text-sm text-slate-500 mb-6">Scale: 1 (Strongly Disagree) to 5 (Strongly Agree)</p>
-                            <div className="space-y-6">
-                                {SUS_ITEMS.map((item, index) => (
-                                    <div key={item.id} className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-slate-50 last:border-0">
-                                        <span className="text-slate-700 font-medium text-sm md:text-base w-full md:w-1/2">
-                                            {index + 1}. {item.text}
-                                        </span>
-                                        <div className="flex gap-2 shrink-0">
-                                            {[1, 2, 3, 4, 5].map((val) => (
-                                                <button
-                                                    key={val}
-                                                    onClick={() => handleRating(item.id, val)}
-                                                    className={`w-8 h-8 md:w-10 md:h-10 rounded-lg text-sm font-bold transition-all ${
-                                                        responses[item.id] === val 
-                                                        ? 'bg-emerald-600 text-white shadow-md' 
-                                                        : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
-                                                    }`}
-                                                >
-                                                    {val}
-                                                </button>
-                                            ))}
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-
-                        {/* UMUX-Lite Section */}
-                        <div>
-                            <h3 className="text-lg font-bold text-slate-800 mb-4 pb-2 border-b">2. UMUX-Lite</h3>
                             <p className="text-sm text-slate-500 mb-6">Scale: 1 (Strongly Disagree) to 7 (Strongly Agree)</p>
                             <div className="space-y-6">
-                                {UMUX_LITE_ITEMS.map((item, index) => (
+                                {UMUX_ITEMS.map((item, index) => (
                                     <div key={item.id} className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-slate-50 last:border-0">
                                         <span className="text-slate-700 font-medium text-sm md:text-base w-full md:w-1/2">
                                             {index + 1}. {item.text}
@@ -541,12 +498,12 @@
                     },
                     stuMMBEQ_Survey: {
                         responses: preSurveyData,
-                        meta: { instrument: "StuMMBE-Q (Krell, 2017)", type: "Pre-Task" }
+                        meta: { instrument: "StuMMBE-Q (Krell, 2017)", type: "Learning Material Evaluation" }
                     },
                     usability_metrics: {
                         responses: postSurveyData,
                         meta: { 
-                            instruments: ["SUS (Bangor et al., 2009)", "UMUX-Lite (Lewis et al., 2015)"],
+                            instruments: ["Standard UMUX (Finstad, 2010)"],
                             type: "Post-Task" 
                         }
                     },
@@ -578,7 +535,7 @@
                                 <h1 className="text-3xl font-bold text-slate-900 mb-3">EDM Assessment System</h1>
                                 <p className="text-slate-500 mb-8 leading-relaxed">
                                     Welcome to the Intelligent Tutoring System prototype. 
-                                    This session includes a pre-assessment survey, a diagnostic quiz, and a post-assessment usability survey.
+                                    This session includes a survey about the learning material, a diagnostic quiz, and a usability survey.
                                 </p>
                                 <button 
                                     onClick={handleStartClick}
