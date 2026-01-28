@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EDM Adaptive Tutor: StuMMBE-Q & Full UMUX</title>
+    <title>EDM Adaptive Tutor: Complete System</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     
@@ -43,6 +43,7 @@
         const RefreshCw = (props) => <IconBase {...props}><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></IconBase>;
         const FileText = (props) => <IconBase {...props}><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></IconBase>;
         const Sliders = (props) => <IconBase {...props}><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></IconBase>;
+        const Info = (props) => <IconBase {...props}><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></IconBase>;
 
 
         // --- PRE-TEST: STUMMBE-Q DATA (Krell, 2017) ---
@@ -73,11 +74,13 @@
             { id: 'UMUX4', text: "I have to spend too much time correcting things with this system.", reverse: true }
         ];
 
-        // --- QUIZ DATA ---
+        // --- QUIZ DATA (Restored to Original Verbatim) ---
         const QUESTIONS = [
             // --- AFM QUESTIONS ---
             {
-                id: 'A1', kc: 'AFM', cognitiveLevel: 'Theory',
+                id: 'A1',
+                kc: 'AFM',
+                cognitiveLevel: 'Theory',
                 text: "Which core assumption distinguishes the Additive Factor Model (AFM) learning curve from simple percentage-correct metrics?",
                 hints: [
                     "Think about the shape of a realistic learning curve. Does probability go from 0 to infinity?",
@@ -86,131 +89,147 @@
                     "The model assumes the 'log-odds' (logit) is linear, not the raw probability itself."
                 ],
                 options: [
-                    { id: 'A', text: "The probability of a correct response increases linearly with each practice opportunity.", isCorrect: false, feedback: "Incorrect. A linear probability model would eventually predict probabilities > 100%." },
-                    { id: 'B', text: "The log-odds (logit) of a correct response increase linearly with practice.", isCorrect: true, feedback: "Correct! AFM uses logistic regression. The 'logit' is linear, creating the S-curve." },
-                    { id: 'C', text: "Learning occurs in a discrete 'all-or-nothing' jump.", isCorrect: false, feedback: "Incorrect. That describes BKT." }
+                    { id: 'A', text: "The probability of a correct response increases linearly with each practice opportunity.", isCorrect: false, feedback: "Incorrect. A linear probability model would eventually predict probabilities > 100%, which is mathematically impossible." },
+                    { id: 'B', text: "The log-odds (logit) of a correct response increase linearly with practice.", isCorrect: true, feedback: "Correct! AFM uses logistic regression. The 'logit' (log-odds) is linear, creating the characteristic S-curve for probability." },
+                    { id: 'C', text: "Learning occurs in a discrete 'all-or-nothing' jump from unlearned to learned.", isCorrect: false, feedback: "Incorrect. That describes Bayesian Knowledge Tracing (BKT), a Hidden Markov Model, not AFM." }
                 ]
             },
             {
-                id: 'A2', kc: 'AFM', cognitiveLevel: 'Interpretation',
+                id: 'A2',
+                kc: 'AFM',
+                cognitiveLevel: 'Interpretation',
                 text: "In the AFM equation, the parameter theta (θ) represents the student intercept. What functional role does this parameter play?",
                 hints: [
-                    "Theta has only the 'i' subscript (student).",
-                    "Consider a novice vs an expert entering the course.",
-                    "This parameter accounts for where the student starts on the y-axis.",
-                    "It captures the initial variability in prior knowledge."
+                    "The formula has indices 'i' for student and 'k' for skill. Theta has only the 'i' subscript.",
+                    "Consider two students entering the course: one is a novice, one is an expert. How does the model distinguish them?",
+                    "This parameter accounts for where the student starts on the y-axis before any practice occurs.",
+                    "It captures the initial variability in prior knowledge (intercept) for each specific student."
                 ],
                 options: [
-                    { id: 'A', text: "It captures the initial variability in prior knowledge across different students.", isCorrect: true, feedback: "Correct. It shifts the starting point of the learning curve." },
-                    { id: 'B', text: "It weights the difficulty of the Knowledge Component.", isCorrect: false, feedback: "Incorrect. KC difficulty is usually beta (β)." },
-                    { id: 'C', text: "It represents the learning rate.", isCorrect: false, feedback: "Incorrect. Learning rate is usually gamma (γ)." }
+                    { id: 'A', text: "It captures the initial variability in prior knowledge across different students.", isCorrect: true, feedback: "Correct. It shifts the starting point of the learning curve up or down for each specific student." },
+                    { id: 'B', text: "It weights the difficulty of the Knowledge Component (KC).", isCorrect: false, feedback: "Incorrect. KC difficulty is usually represented by beta (β)." },
+                    { id: 'C', text: "It represents the rate at which a specific student learns relative to average.", isCorrect: false, feedback: "Incorrect. In standard AFM, the learning rate (slope) is fixed per skill, not per student." }
                 ]
             },
             {
-                id: 'A3', kc: 'AFM', cognitiveLevel: 'Pedagogy',
+                id: 'A3',
+                kc: 'AFM',
+                cognitiveLevel: 'Pedagogy',
                 text: "An AFM analysis reveals a Knowledge Component with a high intercept (β) but a near-zero learning rate (γ ≈ 0). What does this suggest?",
                 hints: [
-                    "Intercept is height. Slope is growth.",
-                    "If intercept is high, they know it already.",
-                    "If slope is zero, they aren't changing.",
-                    "Skill is already mastered."
+                    "Visualize the curve: The Intercept is the starting height. The Slope (learning rate) is the growth.",
+                    "If the intercept is high, the students are already getting it right on the first try.",
+                    "If the slope is zero, their performance isn't changing over time.",
+                    "They started with high accuracy and stayed there. The skill is already known/easy, so practice is wasted."
                 ],
                 options: [
-                    { id: 'A', text: "The skill is difficult and requires practice.", isCorrect: false, feedback: "Incorrect." },
-                    { id: 'B', text: "Students are gaming the system.", isCorrect: false, feedback: "Incorrect." },
-                    { id: 'C', text: "The skill is 'easy' or already known; further practice is wasted.", isCorrect: true, feedback: "Correct. High start + no growth = Mastered." }
+                    { id: 'A', text: "The skill is difficult, and students require significant practice.", isCorrect: false, feedback: "Incorrect. A high intercept implies the skill was easy to begin with." },
+                    { id: 'B', text: "Students are 'gaming the system' by guessing.", isCorrect: false, feedback: "Incorrect. Gaming usually manifests as fast incorrect answers or specific patterns, not necessarily high initial success." },
+                    { id: 'C', text: "The skill is 'easy' or already known; further practice yields diminishing returns.", isCorrect: true, feedback: "Correct. If they start high and don't grow, they've likely already mastered it. Stop practicing this skill." }
                 ]
             },
             // --- PFM QUESTIONS ---
             {
-                id: 'B1', kc: 'PFM', cognitiveLevel: 'Theory',
-                text: "How does the Performance Factor Model (PFM) extend the AFM?",
+                id: 'B1',
+                kc: 'PFM',
+                cognitiveLevel: 'Theory',
+                text: "How does the Performance Factor Model (PFM) extend the AFM to provide more granular predictions?",
                 hints: [
-                    "AFM counts 'Total Opportunities'.",
-                    "PFM cares if you got the previous ones right or wrong.",
-                    "It splits the count variable.",
-                    "It separates Prior Corrects from Prior Incorrects."
+                    "Standard AFM just counts 'Total Opportunities' (T). It ignores what happened during those opportunities.",
+                    "PFM assumes we learn differently from a success vs. a failure.",
+                    "Look for the option that splits the single 'count' variable into two specific outcomes.",
+                    "It separates the practice count into 'Prior Corrects' and 'Prior Incorrects'."
                 ],
                 options: [
-                    { id: 'A', text: "It splits the 'practice count' into prior correct and prior incorrect responses.", isCorrect: true, feedback: "Correct. It decouples the learning rate." },
-                    { id: 'B', text: "It incorporates time-on-task.", isCorrect: false, feedback: "Incorrect." },
-                    { id: 'C', text: "It adds a student-specific learning rate.", isCorrect: false, feedback: "Incorrect." }
+                    { id: 'A', text: "It splits the 'practice count' into prior correct and prior incorrect responses.", isCorrect: true, feedback: "Correct. It decouples the learning rate, acknowledging that we learn differently from success vs. failure." },
+                    { id: 'B', text: "It incorporates time-on-task as a logarithmic factor.", isCorrect: false, feedback: "Incorrect. While time is important, PFM specifically focuses on performance outcomes (success/failure)." },
+                    { id: 'C', text: "It adds a student-specific learning rate.", isCorrect: false, feedback: "Incorrect. That is the AFM-S (Slope) model." }
                 ]
             },
             {
-                id: 'B2', kc: 'PFM', cognitiveLevel: 'Interpretation',
+                id: 'B2',
+                kc: 'PFM',
+                cognitiveLevel: 'Interpretation',
                 text: "In a PFM analysis, if the coefficient for prior failures (ρ) is negative, what is the interpretation?",
                 hints: [
-                    "Negative coefficient means more X = less success.",
-                    "Here X is 'Prior Failures'.",
-                    "More failures predicting more failure.",
-                    "This is 'Wheel-spinning'."
+                    "A negative coefficient means 'More of X leads to less probability of success'.",
+                    "Here, X is 'Prior Failures'. So, more past failures = lower chance to get it right now.",
+                    "If you keep failing and your probability of success keeps dropping, you aren't learning. You are stuck.",
+                    "This phenomenon is called 'Wheel-spinning': accumulating failure predicts future failure."
                 ],
                 options: [
-                    { id: 'A', text: "Students learn more from mistakes.", isCorrect: false, feedback: "Incorrect (that would be positive)." },
-                    { id: 'B', text: "Accumulating failures predicts future failure (Wheel-spinning).", isCorrect: true, feedback: "Correct. The student is stuck." },
-                    { id: 'C', text: "Model failed to converge.", isCorrect: false, feedback: "Incorrect." }
+                    { id: 'A', text: "Students learn more from mistakes than from successes.", isCorrect: false, feedback: "Incorrect. That would imply a positive coefficient (failures increase success probability)." },
+                    { id: 'B', text: "Accumulating failures predicts future failure (Wheel-spinning).", isCorrect: true, feedback: "Correct. A negative slope means the more you fail, the *less* likely you are to succeed next time. This indicates a stuck student." },
+                    { id: 'C', text: "The model has failed to converge.", isCorrect: false, feedback: "Incorrect. Negative coefficients are valid (and common) findings in educational data." }
                 ]
             },
             {
-                id: 'B3', kc: 'PFM', cognitiveLevel: 'Pedagogy',
-                text: "A teacher sees a strongly negative PFM failure coefficient for a skill. What intervention is supported?",
+                id: 'B3',
+                kc: 'PFM',
+                cognitiveLevel: 'Pedagogy',
+                text: "A teacher sees a strongly negative PFM failure coefficient for a geometry skill. What intervention is best supported?",
                 hints: [
-                    "Data shows 'wheel-spinning'.",
-                    "Is more practice good if they are stuck?",
-                    "They need a change in strategy.",
-                    "Remedial feedback."
+                    "The data indicates 'wheel-spinning' (the student is stuck).",
+                    "Is 'more of the same' likely to fix a fundamental misconception?",
+                    "If they are reinforcing bad habits, you must stop the practice loop.",
+                    "Provide remedial feedback or break the skill down. Do not just assign more problems."
                 ],
                 options: [
-                    { id: 'A', text: "Increase practice problems.", isCorrect: false, feedback: "Incorrect. Reinforces frustration." },
-                    { id: 'B', text: "Provide immediate remedial feedback or break skill down.", isCorrect: true, feedback: "Correct. Stop the wheel-spinning." },
-                    { id: 'C', text: "Remove skill.", isCorrect: false, feedback: "Incorrect." }
+                    { id: 'A', text: "Increase the number of practice problems.", isCorrect: false, feedback: "Incorrect. More practice will likely just reinforce the misconception or frustration." },
+                    { id: 'B', text: "Provide immediate remedial feedback or break the skill down.", isCorrect: true, feedback: "Correct. The data shows 'wheel-spinning'. The student needs a different instructional strategy, not just more volume." },
+                    { id: 'C', text: "Remove the skill from the curriculum.", isCorrect: false, feedback: "Incorrect. The skill is likely necessary; the *instruction* is what needs changing." }
                 ]
             },
             // --- IFM QUESTIONS ---
             {
-                id: 'C1', kc: 'IFM', cognitiveLevel: 'Theory',
-                text: "The Instructional Factor Model (IFM) addresses which limitation of AFM/PFM?",
+                id: 'C1',
+                kc: 'IFM',
+                cognitiveLevel: 'Theory',
+                text: "The Instructional Factor Model (IFM) was developed to address which specific limitation of AFM and PFM?",
                 hints: [
-                    "Look at the name 'Instructional'.",
-                    "Standard models ignore if the system helped you.",
-                    "Does AFM know if you used a hint?",
-                    "AFM ignores scaffolding."
+                    "Look at the name of the model: 'Instructional Factor'.",
+                    "Standard models treat every attempt the same, whether you did it alone or the system helped you.",
+                    "Does AFM know if you clicked the 'Hint' button?",
+                    "AFM/PFM ignore whether the student received scaffolding (hints) during the attempt."
                 ],
                 options: [
-                    { id: 'A', text: "They treat all attempts as equal, ignoring hints/scaffolding.", isCorrect: true, feedback: "Correct. IFM accounts for help." },
-                    { id: 'B', text: "They cannot handle missing values.", isCorrect: false, feedback: "Incorrect." },
-                    { id: 'C', text: "They do not account for forgetting.", isCorrect: false, feedback: "Incorrect." }
+                    { id: 'A', text: "They treat all practice attempts as equal, ignoring hints/scaffolding.", isCorrect: true, feedback: "Correct. IFM accounts for the 'Instructional Step'—whether help was given." },
+                    { id: 'B', text: "They cannot handle datasets with missing values.", isCorrect: false, feedback: "Incorrect." },
+                    { id: 'C', text: "They do not account for the forgetting curve.", isCorrect: false, feedback: "Incorrect. Forgetting is modeled by AFM+F." }
                 ]
             },
             {
-                id: 'C2', kc: 'IFM', cognitiveLevel: 'Interpretation',
-                text: "If IFM shows a negative coefficient for 'hint requests', how is this interpreted?",
+                id: 'C2',
+                kc: 'IFM',
+                cognitiveLevel: 'Interpretation',
+                text: "If an IFM analysis shows a negative coefficient for 'hint requests', how should this be interpreted regarding immediate performance?",
                 hints: [
-                    "Correlation, not causation.",
-                    "Who asks for hints? Those who don't know it.",
-                    "Hint usage is a proxy for low prior knowledge.",
-                    "It correlates negatively with immediate independent success."
+                    "This is about statistical correlation, not necessarily the quality of the hint.",
+                    "Who tends to ask for hints: the student who knows the answer, or the one who doesn't?",
+                    "If struggling students are the primary hint-users, what does a hint request signal about their knowledge?",
+                    "Hint usage is a proxy for low prior knowledge, so it correlates negatively with independent success."
                 ],
                 options: [
-                    { id: 'A', text: "Hints increase correctness immediately.", isCorrect: false, feedback: "Incorrect." },
-                    { id: 'B', text: "Heavy reliance on hints correlates with lower independent knowledge.", isCorrect: true, feedback: "Correct. It's a proxy for struggle." },
-                    { id: 'C', text: "Hints are poorly designed.", isCorrect: false, feedback: "Incorrect." }
+                    { id: 'A', text: "Using a hint immediately increases the probability of correctness.", isCorrect: false, feedback: "Incorrect. That would be a positive coefficient." },
+                    { id: 'B', text: "Heavy reliance on hints correlates with lower independent knowledge.", isCorrect: true, feedback: "Correct. Needing a hint is a proxy for lower prior knowledge, so the correlation is often negative." },
+                    { id: 'C', text: "The hints are poorly designed and confusing.", isCorrect: false, feedback: "Incorrect. The model measures student state relative to the hint, not necessarily the quality of the hint text itself." }
                 ]
             },
             {
-                id: 'C3', kc: 'IFM', cognitiveLevel: 'Pedagogy',
-                text: "The 'Assistance Dilemma': Hint usage lowers immediate performance metrics, but...",
+                id: 'C3',
+                kc: 'IFM',
+                cognitiveLevel: 'Pedagogy',
+                text: "The 'Assistance Dilemma': Hint usage correlates negatively with immediate correctness, yet removing hints lowers overall learning. What is the paradox?",
                 hints: [
-                    "Performance vs Learning.",
-                    "Performance is now. Learning is later.",
-                    "Scaffolding helps build the mental model.",
-                    "Short-term dip, long-term gain."
+                    "Think about the difference between 'doing it now' and 'knowing it later'.",
+                    "Performance is immediate execution. Learning is long-term retention.",
+                    "Scaffolding (hints) might make immediate performance look lower (or dependent), but it is building the mental model.",
+                    "The paradox is that short-term Performance decreases (or looks negative) during help, but long-term Learning is actually occurring."
                 ],
                 options: [
-                    { id: 'A', text: "Short-term performance decreases, but long-term learning occurs.", isCorrect: true, feedback: "Correct. Scaffolding is necessary for learning even if it lowers 'score' now." },
-                    { id: 'B', text: "The model is flawed.", isCorrect: false, feedback: "Incorrect." },
-                    { id: 'C', text: "Students are gaming.", isCorrect: false, feedback: "Incorrect." }
+                    { id: 'A', text: "Short-term performance decreases during scaffolding, but long-term learning occurs.", isCorrect: true, feedback: "Correct. Scaffolding might slow them down or signal struggle now, but it builds the mental model for later success." },
+                    { id: 'B', text: "The model is mathematically flawed.", isCorrect: false, feedback: "Incorrect." },
+                    { id: 'C', text: "Students who ask for hints are gaming the system.", isCorrect: false, feedback: "Incorrect. While gaming exists, this dilemma applies even to genuine learners." }
                 ]
             }
         ];
@@ -577,36 +596,55 @@
                 
                 return (
                 <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6 font-sans">
-                    <div className="bg-white p-10 rounded-3xl shadow-xl max-w-2xl w-full text-center border border-slate-200">
-                    <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6 animate-in zoom-in duration-500">
-                        <CheckCircle className="w-12 h-12 text-green-600" />
-                    </div>
-                    <h1 className="text-4xl font-bold text-slate-800 mb-2">Diagnostic Complete</h1>
-                    <p className="text-slate-600 mb-10 text-lg">You have completed all tasks and surveys.</p>
-                    
-                    <div className="mb-8 p-6 bg-slate-50 rounded-2xl border border-slate-200">
-                        <div className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-2">Final Score</div>
-                        <div className="text-5xl font-bold text-indigo-600 mb-2">{totalCorrect} / {QUESTIONS.length}</div>
-                        <div className="text-slate-400 font-medium">{percentage.toFixed(0)}% Accuracy</div>
-                    </div>
-
-                    <div className="flex flex-col gap-3 max-w-xs mx-auto">
-                        <button 
-                            onClick={handleDownloadData}
-                            className="flex items-center justify-center gap-2 w-full px-6 py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-colors font-semibold shadow-md"
-                        >
-                            <Download className="w-5 h-5" />
-                            Download Complete Data (.json)
-                        </button>
+                    <div className="bg-white p-10 rounded-3xl shadow-xl max-w-3xl w-full text-center border border-slate-200">
+                        <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6 animate-in zoom-in duration-500">
+                            <CheckCircle className="w-12 h-12 text-green-600" />
+                        </div>
+                        <h1 className="text-4xl font-bold text-slate-800 mb-2">Study Complete</h1>
+                        <p className="text-slate-600 mb-10 text-lg">You have completed all tasks and surveys.</p>
                         
-                        <button 
-                            onClick={handleReset}
-                            className="flex items-center justify-center gap-2 w-full px-6 py-3 bg-white text-slate-700 border border-slate-300 rounded-xl hover:bg-slate-50 transition-colors font-semibold"
-                        >
-                            <RefreshCw className="w-4 h-4" />
-                            Start New Session
-                        </button>
-                    </div>
+                        <div className="mb-8 p-6 bg-slate-50 rounded-2xl border border-slate-200">
+                            <div className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-2">Final Score</div>
+                            <div className="text-5xl font-bold text-indigo-600 mb-2">{totalCorrect} / {QUESTIONS.length}</div>
+                            <div className="text-slate-400 font-medium">{percentage.toFixed(0)}% Accuracy</div>
+                        </div>
+
+                        {/* DEBRIEFING SECTION */}
+                        <div className="text-left bg-slate-50 p-8 rounded-2xl border border-slate-200 mb-8 space-y-4 text-sm text-slate-700 leading-relaxed shadow-inner">
+                            <h3 className="font-bold text-slate-900 flex items-center gap-2 mb-2">
+                                <Info className="w-5 h-5 text-blue-500"/> Study Debriefing
+                            </h3>
+                            <p>
+                                Thank you for participating in our scientific study on <strong>Supervised Machine Learning Algorithms for Student Modeling!</strong>
+                            </p>
+                            <p>
+                                In this study, we tested a newly developed web application designed to simulate the process of training and using supervised machine learning models in practice. The goal was to gather insights into its usability and potential for teaching and learning purposes, with a focus on usability, user experience, and knowledge acquisition. This study aims to contribute to the development of educational tools that enhance the understanding and application of machine learning in educational settings.
+                            </p>
+                            <p className="bg-yellow-50 p-3 rounded-lg border border-yellow-100 text-yellow-900 text-xs">
+                                <strong>Privacy Notice:</strong> We would like to remind you that all collected data will be stored strictly anonymized and used exclusively for scientific purposes. Once the data collection is complete and the dataset is secured, it will not be possible to trace any information back to you as an individual.
+                            </p>
+                            <p>
+                                If you have any further questions about this study, or any feedback or concerns, please feel free to contact the experiment supervisor, <strong>Yannick Haußmann</strong> (<a href="mailto:yannick.haussmann@stud.uni-due.de" className="text-blue-600 hover:underline">yannick.haussmann@stud.uni-due.de</a>), or <strong>Prof. Chounta</strong> (<a href="mailto:irene-angelica.chounta@uni-due.de" className="text-blue-600 hover:underline">irene-angelica.chounta@uni-due.de</a>).
+                            </p>
+                        </div>
+
+                        <div className="flex flex-col gap-3 max-w-xs mx-auto">
+                            <button 
+                                onClick={handleDownloadData}
+                                className="flex items-center justify-center gap-2 w-full px-6 py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-colors font-semibold shadow-md"
+                            >
+                                <Download className="w-5 h-5" />
+                                Download Complete Data (.json)
+                            </button>
+                            
+                            <button 
+                                onClick={handleReset}
+                                className="flex items-center justify-center gap-2 w-full px-6 py-3 bg-white text-slate-700 border border-slate-300 rounded-xl hover:bg-slate-50 transition-colors font-semibold"
+                            >
+                                <RefreshCw className="w-4 h-4" />
+                                Start New Session
+                            </button>
+                        </div>
                     </div>
                 </div>
                 );
